@@ -1,0 +1,236 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BCA Freshers Quiz 2025</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #4facfe, #43e97b);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+      text-align: center;
+    }
+    .question {
+      display: none;
+      text-align: left;
+    }
+    .question.active {
+      display: block;
+    }
+    label {
+      display: block;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background: #fff;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: #333;
+      color: #fff;
+    }
+    #result {
+      font-size: 1.4rem;
+      margin-top: 20px;
+    }
+    .feedback {
+      margin-top: 10px;
+      font-size: 1rem;
+      color: #ffcccb;
+    }
+    #studentInfo {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 8px;
+      width: 70%;
+      border-radius: 8px;
+      border: none;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>✨ BCA Freshers Quiz 2025 ✨</h1>
+    <div id="studentInfo">
+      <input type="text" id="studentName" placeholder="Enter your name" required />
+      <button onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <form id="quizForm" style="display: none;">
+      <div id="questionContainer"></div>
+      <button type="button" onclick="nextQuestion(true)" id="nextBtn">Next</button>
+      <div id="result"></div>
+      <div id="timer" style="margin-top: 15px; font-size: 1.1rem;"></div>
+    </form>
+  </div>
+  <script>
+    let questions = [
+      ["What does CPU stand for?", ["Central Processing Unit", "Core Print Unit", "Computer Personal Unit"], 0],
+      ["Which one is a programming language?", ["Python", "HTML", "CSS"], 0],
+      ["Who is known as the father of computers?", ["Charles Babbage", "Alan Turing", "Steve Jobs"], 0],
+      ["What does RAM do in a computer?", ["Helps run programs quickly", "Stores files permanently", "Connects to internet"], 0],
+      ["Which one is an operating system?", ["Windows", "Excel", "Intel"], 0],
+      ["Which device is used to point and click?", ["Mouse", "Keyboard", "Monitor"], 0],
+      ["What is the brain of the computer?", ["CPU", "RAM", "Hard Drive"], 0],
+      ["Which of the following is not input device?", ["Monitor", "Mouse", "Keyboard"], 0],
+      ["Which company developed Windows?", ["Microsoft", "Apple", "Google"], 0],
+      ["Which language is used for web development?", ["HTML", "Excel", "Windows"], 0],
+      ["What is the full form of URL?", ["Uniform Resource Locator", "Universal Render Link", "User Remote Log"], 0],
+      ["Which is a web browser?", ["Chrome", "Windows", "Excel"], 0],
+      ["What is the full form of HTTP?", ["HyperText Transfer Protocol", "HighText Technical Protocol", "Hyperlink Transfer Protocol"], 0],
+      ["Which component displays output?", ["Monitor", "Mouse", "CPU"], 0],
+      ["Which is used to connect to the internet?", ["Modem", "Mouse", "Printer"], 0],
+      ["Which one stores data permanently?", ["Hard Disk", "RAM", "Cache"], 0],
+      ["What is an IP address?", ["Unique address for a device", "An app name", "A file format"], 0],
+      ["Which app is used for typing documents?", ["MS Word", "Excel", "Chrome"], 0],
+      ["Which one is a programming concept?", ["Loop", "Monitor", "Cable"], 0],
+      ["Which programming language is object-oriented?", ["Java", "HTML", "SQL"], 0],
+      ["Which keyword is used to define a function in Python?", ["def", "func", "define"], 0],
+      ["What is the extension of a JavaScript file?", [".js", ".java", ".jsx"], 0],
+      ["Which one is a valid loop structure?", ["for", "next", "repeat"], 0],
+      ["Which HTML tag is used to display images?", ["<img>", "<image>", "<pic>"], 0],
+      ["Which CSS property controls text size?", ["font-size", "text-style", "text-size"], 0]
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let interval;
+    const userAnswers = [];
+
+    function shuffleQuestions(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function startQuiz() {
+      const name = document.getElementById("studentName").value.trim();
+      if (!name) {
+        alert("Please enter your name to start the quiz.");
+        return;
+      }
+      questions = shuffleQuestions(questions);
+      document.getElementById("studentInfo").style.display = "none";
+      document.getElementById("quizForm").style.display = "block";
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      clearInterval(interval);
+      const container = document.getElementById("questionContainer");
+      container.innerHTML = "";
+      const q = questions[currentQuestion];
+      const div = document.createElement("div");
+      div.className = "question active";
+      div.innerHTML = `<p>${currentQuestion + 1}. ${q[0]}</p>`;
+      q[1].forEach((choice, i) => {
+        div.innerHTML += `<label><input type='radio' name='q${currentQuestion}' value='${i}' /> ${choice}</label>`;
+      });
+      container.appendChild(div);
+      startTimer(10);
+    }
+
+    function nextQuestion(userInitiated = false) {
+      clearInterval(interval);
+      const selected = document.querySelector(`input[name='q${currentQuestion}']:checked`);
+      const correctIndex = questions[currentQuestion][2];
+      const selectedAnswer = selected ? questions[currentQuestion][1][parseInt(selected.value)] : null;
+      const correctAnswer = questions[currentQuestion][1][correctIndex];
+
+      if (selected && parseInt(selected.value) === correctIndex) {
+        score++;
+        userAnswers.push({ correct: true });
+      } else {
+        userAnswers.push({ correct: false, selected: selectedAnswer || "No Answer", correctAnswer });
+      }
+
+      currentQuestion++;
+
+      if (currentQuestion < questions.length) {
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      clearInterval(interval);
+      const container = document.getElementById("questionContainer");
+      const btn = document.getElementById("nextBtn");
+      const studentName = document.getElementById("studentName").value.trim();
+
+      container.innerHTML = `<h2 style='color: #00ffcc;'>🎉 ${studentName}, you scored ${score} out of ${questions.length}!</h2>`;
+
+      userAnswers.forEach((entry, index) => {
+        if (!entry.correct) {
+          const qText = questions[index][0];
+          container.innerHTML += `<div class='feedback'><strong>Q${index + 1}:</strong> ${qText}<br/>❌ Your Answer: ${entry.selected}<br/>✔️ Correct Answer: ${entry.correctAnswer}</div>`;
+        }
+      });
+
+      btn.style.display = "none";
+
+      fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: studentName, score: `${score}/${questions.length}` })
+      });
+    }
+
+    function startTimer(duration) {
+      let timer = duration;
+      const display = document.getElementById("timer");
+      interval = setInterval(() => {
+        const minutes = Math.floor(timer / 60);
+        const seconds = timer % 60;
+        display.textContent = `⏱️ Time Left: ${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+
+        if (--timer < 0) {
+          clearInterval(interval);
+          nextQuestion(false);
+        }
+      }, 1000);
+    }
+
+    window.onblur = () => {
+      alert("You switched tabs or minimized the window. The quiz will now be submitted.");
+      showResults();
+    };
+  </script>
+</body>
+</html>
